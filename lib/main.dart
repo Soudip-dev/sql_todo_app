@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sqlflite_todo/page/home_page/homePage.dart';
+
+import 'package:sqlflite_todo/page/home_page2/homePage2.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Homepage(),
+      home: HomePage2(),
     );
   }
 }
