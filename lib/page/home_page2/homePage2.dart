@@ -21,9 +21,9 @@ class _HomePage2State extends State<HomePage2> {
   Future<void> getNotes()async{
     print("before allNotes +++++++++++++");
      allNotes= await   dbRef!.getAllNotes();
-     allNotes.forEach((element) {
-      print(element.toString());
-     });
+    //  allNotes.forEach((element) {
+    //   print(element.toString());
+    //  });
      print("after allNotes +++++++++++++$allNotes");
      setState(() {
        

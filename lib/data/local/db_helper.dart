@@ -20,16 +20,16 @@ class DBHelper{
 Database ? myDB;
 // db open>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 Future <Database>  getDB()async{
-   myDB ??= await openDB();
-   return myDB!;
-}
+  //  myDB ??= await openDB();
+  //  return myDB!;
+// }
 
-  //  if(myDB == null){
-  //   openDB();
-  // }
+   if(myDB == null){
+    openDB();
+  }
   
-  // return myDB!;
-
+  return myDB!;
+}
 
 Future <Database> openDB()async{
  Directory appDir = await getApplicationDocumentsDirectory();
@@ -50,11 +50,14 @@ Future <Database> openDB()async{
       print("title : $title , content : $content  ");
       print("add fun Called >>>>>>>>>>>>>>>>>>>>>");
       var db = await getDB();
+     
      int rowsEffected = await  db.insert( TABLE_NOTE, {
       COLUMN_NOTE_TITLE : title,
       COLUMN_NOTE_CONTENT : content
 
      });
+
+      print("Db : add fun Called >>>>>>>>>>>>>>>>>>>>>$rowsEffected");
 
      return rowsEffected > 0;
    
@@ -62,15 +65,20 @@ Future <Database> openDB()async{
    }
 
    Future <List<Map<String, dynamic>>> getAllNotes()async{
+    List<Map<String, dynamic>> noteList = [];
+    
+    try{
+      
     print("get all notes fun called>>>>>>>>>>>>>>>>>>>>>>>");
     //  data list show function....
     
     var db = await getDB();
 print("get all notes fun called>>>>>>>>>>>>>>>>>>>>>>>22222");
-   List<Map<String, dynamic>> noteList = await db.query(TABLE_NOTE);
-   print("get all notes fun called>>>>>>>>>>>>>>>>>>>>>>>3333");
-   print(noteList.toString());
-   print("get all notes fun called>>>>>>>>>>>>>>>>>>>>>>>22222");
+    noteList = await db.query(TABLE_NOTE);
+  
+    }catch(err){
+     print("Error:> $err");
+    }
    return noteList;
 
 
