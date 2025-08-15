@@ -30,6 +30,7 @@ Future <Database>  getDB()async{
   
   return myDB!;
 }
+// add
 
 Future <Database> openDB()async{
  Directory appDir = await getApplicationDocumentsDirectory();
