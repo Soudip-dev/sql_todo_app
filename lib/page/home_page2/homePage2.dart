@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqlflite_todo/data/local/db_handler.dart';
 import 'package:sqlflite_todo/data/local/db_helper.dart';
 
 class HomePage2 extends StatefulWidget {
@@ -10,17 +11,18 @@ class HomePage2 extends StatefulWidget {
 
 class _HomePage2State extends State<HomePage2> {
   List <Map<String, dynamic>> allNotes = [];
-  DBHelper ? dbRef;
+  // List <Map<String, dynamic>> allData = [];
+  DBHelper  dbRef = DBHelper.getInstance;
+  // DbHandler ? dbHandler;
   @override
   void initState() {
     super.initState();
-    dbRef = DBHelper.getInstance;
-    print("first init $dbRef");
+    
     getNotes();
   }
   Future<void> getNotes()async{
     print("before allNotes +++++++++++++");
-     allNotes= await   dbRef!.getAllNotes();
+     allNotes= await   dbRef.getAllNotes();
     //  allNotes.forEach((element) {
     //   print(element.toString());
     //  });
@@ -37,7 +39,12 @@ class _HomePage2State extends State<HomePage2> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: ()async{
-         bool check= await dbRef!.addNote(title: "Soudip", content: "Samanta");
+print("button pressed");
+      // await DbHandler().insertData();
+        // print(data);
+      //  print("Alldata: $allData");
+          // DbHandler().getAllData();
+         bool check= await dbRef.addNote(title: "Soudip", content: "Samanta");
           if(check){
            getNotes();
          }
@@ -48,11 +55,13 @@ class _HomePage2State extends State<HomePage2> {
         itemCount: allNotes.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(allNotes[index][dbRef!.COLUMN_NOTE_TITLE]),
-            subtitle: Text(allNotes[index][dbRef!.COLUMN_NOTE_CONTENT]),
+            title: Text(allNotes[index][DBHelper.columnNoteTitle]),
+            subtitle: Text(allNotes[index][DBHelper.columnNoteContent]),
           );
         },
-      ):Center(     child: Text("No Data Yet !!!"),
-    ));
+      )
+      :Center(     child: Text("No Data Yet !!!"),
+    )
+    );
   }
 }

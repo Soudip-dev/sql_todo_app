@@ -1,91 +1,71 @@
-import 'dart:io';
 
+import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-class DBHelper{
-  // singleton instace create
-  final String TABLE_NOTE = "note";
-  final String COLUMN_NOTE_ID = "id";
-  final String COLUMN_NOTE_TITLE = "title";
-  final String COLUMN_NOTE_CONTENT = "content";
-  
+class DBHelper {
+  // Table and column names as static const
+  static const String tableNote = "note";
+  static const String columnNoteId = "id";
+  static const String columnNoteTitle = "title";
+  static const String columnNoteContent = "content";
+
+  // Singleton instance
   DBHelper._();
   static final DBHelper getInstance = DBHelper._();
-// static  DBHelper getInstance(){
-//     return DBHelper._();
-  
-//   }
-Database ? myDB;
-// db open>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-Future <Database>  getDB()async{
-  //  myDB ??= await openDB();
-  //  return myDB!;
-// }
 
-   if(myDB == null){
-    openDB();
+  Database? _db;
+
+  // Get database instance
+  Future<Database> getDB() async {
+    _db ??= await _openDB();
+    return _db!;
   }
-  
-  return myDB!;
-}
-// add
 
-Future <Database> openDB()async{
- Directory appDir = await getApplicationDocumentsDirectory();
- String dbPath = join(appDir.path, "noteDB.db") ;
+  // Open database and create table if not exists
+  Future<Database> _openDB() async {
+    Directory appDir = await getApplicationDocumentsDirectory();
+    String dbPath = join(appDir.path, "noteDB.db");
+    return await openDatabase(
+      dbPath,
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+CREATE TABLE $tableNote (
+  $columnNoteId INTEGER PRIMARY KEY AUTOINCREMENT,
+  $columnNoteTitle TEXT,
+  $columnNoteContent TEXT
+)
+''');
+      },
+    );
+  }
 
- return await openDatabase(dbPath, version: 1, onCreate: (db, version){
-  
-  // create all your tabels
-  db.execute("CREATE TABLE $TABLE_NOTE {$COLUMN_NOTE_ID INTEGER PRIMARY KEY AUTOINCREMENT, $COLUMN_NOTE_TITLE TEXT, $COLUMN_NOTE_CONTENT TEXT}");
+  // Insert a note into the table
+  Future<bool> addNote({required String title, required String content}) async {
+    final db = await getDB();
+    int rowsAffected = await db.insert(
+      tableNote,
+      {
+        columnNoteTitle: title,
+        columnNoteContent: content,
+      },
+    );
+    return rowsAffected > 0;
+  }
 
- });
- 
-}
-// all queries>>>>>>>>>>>>>>>>>>>>
-   
-   Future<bool> addNote({required String title, required String content})async{
-      //  data add function......
-      print("title : $title , content : $content  ");
-      print("add fun Called >>>>>>>>>>>>>>>>>>>>>");
-      var db = await getDB();
-     
-     int rowsEffected = await  db.insert( TABLE_NOTE, {
-      COLUMN_NOTE_TITLE : title,
-      COLUMN_NOTE_CONTENT : content
-
-     });
-
-      print("Db : add fun Called >>>>>>>>>>>>>>>>>>>>>$rowsEffected");
-
-     return rowsEffected > 0;
-   
-
-   }
-
-   Future <List<Map<String, dynamic>>> getAllNotes()async{
-    List<Map<String, dynamic>> noteList = [];
-    
-    try{
-      
-    print("get all notes fun called>>>>>>>>>>>>>>>>>>>>>>>");
-    //  data list show function....
-    
-    var db = await getDB();
-print("get all notes fun called>>>>>>>>>>>>>>>>>>>>>>>22222");
-    noteList = await db.query(TABLE_NOTE);
-  
-    }catch(err){
-     print("Error:> $err");
+  // Get all notes from the table
+  Future<List<Map<String, dynamic>>> getAllNotes() async {
+    try {
+      final db = await getDB();
+      return await db.query(tableNote);
+    } catch (err) {
+      print("Error: $err");
+      return [];
     }
-   return noteList;
-
-
-   }
-
-    }
+  }
+}
 
 
 
