@@ -1,71 +1,69 @@
-
-import 'dart:io';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class DBHelper {
-  // Table and column names as static const
-  static const String tableNote = "note";
-  static const String columnNoteId = "id";
-  static const String columnNoteTitle = "title";
-  static const String columnNoteContent = "content";
+  static final DBHelper _instance = DBHelper._internal();
+  static Database? _database;
 
-  // Singleton instance
-  DBHelper._();
-  static final DBHelper getInstance = DBHelper._();
-
-  Database? _db;
-
-  // Get database instance
-  Future<Database> getDB() async {
-    _db ??= await _openDB();
-    return _db!;
+  factory DBHelper() {
+    return _instance;
   }
 
-  // Open database and create table if not exists
-  Future<Database> _openDB() async {
-    Directory appDir = await getApplicationDocumentsDirectory();
-    String dbPath = join(appDir.path, "noteDB.db");
-    return await openDatabase(
-      dbPath,
-      version: 1,
-      onCreate: (db, version) async {
-        await db.execute('''
-CREATE TABLE $tableNote (
-  $columnNoteId INTEGER PRIMARY KEY AUTOINCREMENT,
-  $columnNoteTitle TEXT,
-  $columnNoteContent TEXT
-)
-''');
-      },
-    );
-  }
+  DBHelper._internal();
 
-  // Insert a note into the table
-  Future<bool> addNote({required String title, required String content}) async {
-    final db = await getDB();
-    int rowsAffected = await db.insert(
-      tableNote,
-      {
-        columnNoteTitle: title,
-        columnNoteContent: content,
-      },
-    );
-    return rowsAffected > 0;
-  }
-
-  // Get all notes from the table
-  Future<List<Map<String, dynamic>>> getAllNotes() async {
-    try {
-      final db = await getDB();
-      return await db.query(tableNote);
-    } catch (err) {
-      print("Error: $err");
-      return [];
+  Future<Database> get database async {
+    if (_database != null) {
+      return _database!;
     }
+    _database = await _initDatabase();
+    return _database!;
+  }
+
+  Future<Database> _initDatabase() async {
+    String path = join(await getDatabasesPath(), 'notes_database.db');
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+    );
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE notes(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        description TEXT
+      )
+    ''');
+  }
+
+  Future<int> insertNote(Map<String, dynamic> note) async {
+    Database db = await database;
+    return await db.insert('notes', note);
+  }
+
+  Future<List<Map<String, dynamic>>> getNotes() async {
+    Database db = await database;
+    return await db.query('notes');
+  }
+
+  Future<int> updateNote(Map<String, dynamic> note) async {
+    Database db = await database;
+    return await db.update(
+      'notes',
+      note,
+      where: 'id = ?',
+      whereArgs: [note['id']],
+    );
+  }
+
+  Future<int> deleteNote(int id) async {
+    Database db = await database;
+    return await db.delete(
+      'notes',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
-
-
-

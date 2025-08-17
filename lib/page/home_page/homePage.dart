@@ -29,8 +29,10 @@ class _HomepageState extends State<Homepage> {
   }
 
   Widget _addTaskButton() {
-    return FloatingActionButton(onPressed: (){
-      dbHandler.insertData();
+    return FloatingActionButton(onPressed: () async{
+     await dbHandler.insertData();
+      //  final data = await dbHandler.readData();
+      //  print("data: $data");
 //       showDialog(context: context, builder: (_){
 //         return AlertDialog(
 //           title: Text("Add Task"),

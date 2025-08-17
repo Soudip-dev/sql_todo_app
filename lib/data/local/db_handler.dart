@@ -7,20 +7,19 @@ import 'package:sqflite/sqflite.dart';
 class DbHandler {
   Database ? _database;
   
-  Future<Database> get database async{
-    // if(_database != null){
-    //   return _database!;
-    // }
+  Future<Database?> get database async{
+    if(_database != null){
+      return _database!;
+    }
 
      Directory directory = await getApplicationDocumentsDirectory();
-     String path = join(directory.path,'mydatabase.db');
+     String path = join(directory.path,'myDatabase.db');
    _database= await openDatabase(path, version: 1,onCreate: (db, version) {
    db.execute('''
-CREATE TABLE DatabaseTable {
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT,
-  
-}
+CREATE TABLE myDatabase (
+  id INTEGER PRIMARY KEY,
+  title TEXT
+  )
  ''');
       
     }, );
@@ -32,22 +31,22 @@ CREATE TABLE DatabaseTable {
   // static final DbHandler getInstance = DbHandler._();
 
   insertData()async{
-    Database db = await database;
- await db.rawInsert(
-      'INSERT INTO DatabaseTable(id, title) VALUES(1, "Soudip")');
+    Database ? db = await database;
+ await db?.rawInsert(
+      'INSERT INTO myDatabase(id, title) VALUES(1, soudip)');
   
-  // await  db.insert( 'DatabaseTable', {
+  // await  db!.insert( 'myDatabase', {
   //     'id' : 1,
-  //     'title' : "Soudip",
+  //     'title' : 'soudip',
      
   //   });
 
   }
 
   readData() async{
-    Database db = await database;
+    Database ? db = await database;
     
-    final dataList = await db.query('DatabaseTable');
+    final dataList = await db?.query('myDatabase');
     return dataList;
   
 

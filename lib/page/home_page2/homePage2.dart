@@ -10,27 +10,29 @@ class HomePage2 extends StatefulWidget {
 }
 
 class _HomePage2State extends State<HomePage2> {
-  List <Map<String, dynamic>> allNotes = [];
-  // List <Map<String, dynamic>> allData = [];
-  DBHelper  dbRef = DBHelper.getInstance;
-  // DbHandler ? dbHandler;
+  DBHelper? dbHelper ;
+  List <Map<String, dynamic>> allNotes = [
+  ];
+  
   @override
   void initState() {
     super.initState();
+    dbHelper = DBHelper();
+    getAllNotes();
+
     
-    getNotes();
   }
-  Future<void> getNotes()async{
-    print("before allNotes +++++++++++++");
-     allNotes= await   dbRef.getAllNotes();
-    //  allNotes.forEach((element) {
-    //   print(element.toString());
-    //  });
-     print("after allNotes +++++++++++++$allNotes");
-     setState(() {
-       
-     });
+
+  Future <void> getAllNotes()async{
+    print("getAllNotes() called");
+    allNotes = await dbHelper!.getNotes();
+    setState(() {
+      
+    });
+    print(allNotes);
+    
   }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,15 +41,13 @@ class _HomePage2State extends State<HomePage2> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: ()async{
-print("button pressed");
-      // await DbHandler().insertData();
-        // print(data);
-      //  print("Alldata: $allData");
-          // DbHandler().getAllData();
-         bool check= await dbRef.addNote(title: "Soudip", content: "Samanta");
-          if(check){
-           getNotes();
-         }
+          // List<Map<String, dynamic>> noteList = [];
+     await dbHelper!.insertNote({
+      "title": "Subhodip",
+      "description": "I'm a Python developer"
+     
+     });
+     getAllNotes();
         },
         child: Icon(Icons.add),
       ),
@@ -55,8 +55,11 @@ print("button pressed");
         itemCount: allNotes.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(allNotes[index][DBHelper.columnNoteTitle]),
-            subtitle: Text(allNotes[index][DBHelper.columnNoteContent]),
+            leading: CircleAvatar(
+              child: Text(allNotes[index]['id'].toString()),
+            ),
+            title: Text(allNotes[index]['title']),
+            subtitle: Text(allNotes[index]['description']),
           );
         },
       )
